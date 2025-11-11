@@ -47,6 +47,7 @@ canvas.get_tk_widget().pack(pady=15)
 
 time_data, temp_data, hum_data = [], [], []
 start_time = time.time()
+
 # =============================
 # Data Update Function
 # =============================
@@ -57,3 +58,46 @@ def update_data():
         raw = esp32.readline()
         line = raw.decode('utf-8', errors='ignore').strip()
 
+        if line:
+            print("📡 Received:", line)
+            try:
+                t, h = map(float, line.split(','))
+                temp_label.config(text=f"{t:.1f} °C")
+                hum_label.config(text=f"{h:.1f} %")
+
+                current_time = round(time.time() - start_time, 1)
+                time_data.append(current_time)
+                temp_data.append(t)
+                hum_data.append(h)
+
+                if len(time_data) > 30:
+                    time_data = time_data[-30:]
+                    temp_data = temp_data[-30:]
+                    hum_data = hum_data[-30:]
+
+                # Clear and replot
+                ax.clear()
+                ax.plot(time_data, temp_data, color='red', label='Temperature (°C)', marker='o')
+                ax.plot(time_data, hum_data, color='blue', label='Humidity (%)', marker='x')
+                ax.set_title("DHT11 Live Readings (ESP32)")
+                ax.set_xlabel("Time (s)")
+                ax.set_ylabel("Value")
+                ax.legend(loc='upper right')
+                ax.grid(True)
+                canvas.draw()
+            except ValueError:
+                print("⚠️ Invalid line:", line)
+
+    root.after(2000, update_data)
+
+update_data()
+
+# =============================
+# Run GUI
+# =============================
+try:
+    root.mainloop()
+finally:
+    if esp32:
+        esp32.close()
+        print("🔌 Serial closed.")
