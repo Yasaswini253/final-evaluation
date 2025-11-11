@@ -22,8 +22,7 @@ root = tk.Tk()
 root.title("ESP32 DHT11 Live Plot")
 root.geometry("700x500")
 root.configure(bg="#eef6fd")
-<<<<<<< HEAD
-=======
+
 # Labels
 tk.Label(root, text="Temperature (°C):", font=("Arial", 14), bg="#eef6fd").pack()
 temp_label = tk.Label(root, text="-- °C", font=("Arial", 18, "bold"), fg="red", bg="#eef6fd")
